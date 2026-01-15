@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber Detective: Final Exam</title>
+    <title>Cyber Detective: Final Exam (No Hints)</title>
     <script src="https://cdn.jsdelivr.net/npm/alasql@1.7.3/dist/alasql.min.js"></script>
     <style>
         :root {
@@ -106,7 +106,7 @@
         <div class="story-box" id="story-text"></div>
 
         <div>
-            <textarea id="sqlInput" placeholder=">_ SELECT * FROM..."></textarea>
+            <textarea id="sqlInput" placeholder=">_ Masukkan perintah SQL..."></textarea>
             <div class="btn-group">
                 <button class="exec-btn" onclick="runSQL()">EKSEKUSI PERINTAH (Ctrl+Enter)</button>
             </div>
@@ -126,7 +126,7 @@
     const GFORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe5-V6WJjoqXPuK1Al73RfUpdeWqDMJXEo8rssvGglgV-O4fQ/viewform"; 
     const ENTRY_NAMA = "entry.282411220";  // Ganti ID untuk field Nama
     const ENTRY_KELAS = "entry.2025115836"; // Ganti ID untuk field Kelas
-    const ENTRY_WAKTU = "entry.2145279951"; // Ganti ID untuk field Waktu
+    const ENTRY_WAKTU = "entry.2145279951"; // Ganti ID untuk field Waktu 
 
     // ==========================================
     // SYSTEM LOGIC
@@ -153,7 +153,7 @@
         timerInterval = setInterval(updateTimer, 1000);
         
         initDatabase();
-        updateStory(1, "SYSTEM CHECK", "Lakukan pengecekan sistem. Tampilkan semua data dari tabel <code>siswa</code>.", "SELECT * FROM siswa");
+        updateStory(1, "SYSTEM CHECK", "Lakukan pengecekan sistem. Tampilkan semua data dari tabel <code>siswa</code>.");
     }
 
     function updateTimer() {
@@ -256,31 +256,31 @@
 
         if (next) {
             currentLevel++;
-            // Update Text (Isi sesuai alur cerita lengkap jika perlu)
-            let hints = {
-                2: "Cek log pintu 'R.Server' (WHERE)",
-                3: "Cari nama ID 18 (WHERE ID)",
-                4: "Update status Rian (UPDATE)",
-                5: "Cek transfer ke Rian > 1jt (SELECT AND)",
-                6: "Urutkan uang terbesar (ORDER BY DESC)",
-                7: "Cari pemilik ID 45 (SELECT ID)",
-                8: "Cari teman sekelas 'TKJ' (LIKE)",
-                9: "Hitung akses Kevin (COUNT)",
-                10: "Cari file virus (LIKE)",
-                11: "Hapus virus (DELETE)",
-                12: "Hitung kerugian (SUM)",
-                13: "Lapor Polisi (INSERT)"
+            // Update Text tanpa Hint
+            let stories = {
+                2: "Cek log pintu 'R.Server' untuk melihat jejak akses.",
+                3: "Tersangka ditemukan dengan ID 18. Cari tahu siapa namanya di tabel siswa.",
+                4: "Amankan situasi. Update status siswa tersebut menjadi 'Suspended'.",
+                5: "Selidiki aliran dana. Cek transfer masuk ke tersangka yang > 1 Juta.",
+                6: "Siapa penyandang dananya? Urutkan transaksi bank berdasarkan jumlah terbesar.",
+                7: "Dalang teridentifikasi dengan ID 45. Cari profil lengkapnya di database.",
+                8: "Analisis jaringan. Cari teman sekelasnya yang juga dari jurusan 'TKJ'.",
+                9: "Cek intensitas akses fisik si dalang (ID 45) di semua pintu.",
+                10: "Scan server. Cari nama file yang mencurigakan (ekstensi .exe).",
+                11: "Ancaman ditemukan. Hapus file virus tersebut dari server sekarang!",
+                12: "Hitung total kerugian aset sekolah yang berstatus 'Hilang'.",
+                13: "Kasus selesai. Buat laporan polisi baru (Insert) dengan status tersangka 'Diproses'."
             };
-            updateStory(currentLevel, "LEVEL " + currentLevel, "Akses diberikan. Lanjutkan misi berikutnya.", hints[currentLevel]);
+            
+            updateStory(currentLevel, "LEVEL " + currentLevel, stories[currentLevel] || "Lanjutkan investigasi...");
             document.getElementById('sqlInput').value = "";
         }
     }
 
-    function updateStory(lvl, title, desc, hint) {
+    function updateStory(lvl, title, desc) {
         document.getElementById('story-text').innerHTML = `
             <div style="margin-bottom:5px"><span class="level-tag">LEVEL ${lvl}</span> <strong style="color:white;">${title}</strong></div>
             <div>${desc}</div>
-            <div style="margin-top:8px; color:#777; font-size:0.85em">💡 Hint: ${hint}</div>
         `;
     }
 
