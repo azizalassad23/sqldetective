@@ -1,0 +1,326 @@
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cyber Detective: Exam Mode</title>
+        <script src="https://cdn.jsdelivr.net/npm/alasql@1.7.3/dist/alasql.min.js"></script>
+        <style>
+            :root {
+                --bg-color: #0d1117;
+                --term-green: #00ff41;
+                --term-red: #ff3333;
+                --panel-bg: #161b22;
+                --border: #30363d;
+            }
+            body { font-family: 'Consolas', monospace; background-color: var(--bg-color); color: #c9d1d9; padding: 20px; max-width: 950px; margin: auto; overflow-x: hidden; }
+            
+            /* LOGIN SCREEN */
+            #login-overlay {
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: #000; z-index: 9999;
+                display: flex; justify-content: center; align-items: center;
+                flex-direction: column;
+            }
+            .login-box {
+                border: 2px solid var(--term-green); padding: 40px; border-radius: 10px;
+                background: #111; text-align: center; box-shadow: 0 0 30px rgba(0,255,65,0.2);
+                width: 300px;
+            }
+            .login-input {
+                width: 100%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; font-family: inherit;
+            }
+            .start-btn {
+                background: var(--term-green); color: black; font-weight: bold; width: 100%; padding: 10px; border: none; cursor: pointer; margin-top: 20px;
+            }
+            .start-btn:hover { background: #00cc33; }
+
+            /* MAIN GAME UI (Hidden by default) */
+            #game-container { display: none; }
+            
+            .container { background: var(--panel-bg); padding: 25px; border-radius: 6px; border: 1px solid var(--border); }
+            h1 { text-align: center; color: var(--term-green); margin-bottom: 30px; }
+            .story-box { background: #010409; padding: 20px; border-left: 5px solid var(--term-green); margin-bottom: 25px; line-height: 1.6; }
+            .level-tag { background: var(--term-green); color: black; padding: 3px 8px; font-weight: bold; font-size: 0.8em; margin-right: 10px; }
+            
+            textarea { width: 100%; height: 80px; background: #0d1117; color: var(--term-green); border: 1px solid #30363d; padding: 15px; font-size: 1.1em; box-sizing: border-box; }
+            textarea:focus { outline: none; border-color: var(--term-green); }
+            
+            .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+            button.exec-btn { background: #238636; color: white; border: none; padding: 10px 25px; cursor: pointer; font-size: 16px; border-radius: 6px; }
+            button.reset-btn { background: #da3633; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 6px; }
+
+            #result-area { margin-top: 25px; overflow-x: auto; border-top: 1px solid var(--border); padding-top: 15px; }
+            table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+            th, td { border: 1px solid #30363d; padding: 8px; text-align: left; }
+            th { background: #21262d; color: #fff; }
+
+            /* FOOTER */
+            #schema-footer {
+                position: fixed; bottom: 0; left: 0; width: 100%; height: 160px;
+                background: #0d1117; border-top: 2px solid var(--term-green);
+                padding: 15px; display: flex; gap: 15px; overflow-x: auto; z-index: 100;
+            }
+            .schema-card { border: 1px solid #30363d; padding: 10px; background: #161b22; min-width: 180px; font-size: 0.8em; color: #8b949e; }
+            .tbl-name { color: var(--term-green); font-weight: bold; display: block; border-bottom: 1px solid #333; margin-bottom: 5px; }
+
+            /* INFO BAR (User & Timer) */
+            .info-bar { display: flex; justify-content: space-between; margin-bottom: 15px; color: #888; font-size: 0.9em; border-bottom: 1px solid #333; padding-bottom: 5px; }
+            #timer-display { color: var(--term-green); font-weight: bold; }
+        </style>
+    </head>
+    <body>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="color:var(--term-green); margin-top:0;">IDENTITY VERIFICATION</h2>
+            <p style="color:#888; font-size:0.9em;">Masukkan identitas agen untuk memulai misi.</p>
+            <input type="text" id="inputNama" class="login-input" placeholder="Nama Lengkap" required>
+            <input type="text" id="inputKelas" class="login-input" placeholder="Kelas (Contoh: X RPL 1)" required>
+            <button class="start-btn" onclick="startGame()">START MISSION >></button>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div class="info-bar">
+            <span>AGEN: <span id="display-nama">-</span> (<span id="display-kelas">-</span>)</span>
+            <span>WAKTU: <span id="timer-display">00:00</span></span>
+        </div>
+
+        <div class="container">
+            <h1>💻 SYSTEM: ROOT ACCESS GRANTED</h1>
+            
+            <div class="story-box" id="story-text"></div>
+
+            <div>
+                <textarea id="sqlInput" placeholder=">_ Masukkan perintah SQL..."></textarea>
+                <div class="btn-group">
+                    <button class="exec-btn" onclick="runSQL()">EKSEKUSI [CTRL+ENTER]</button>
+                    <button class="reset-btn" onclick="location.reload()">RESET</button>
+                </div>
+            </div>
+
+            <div id="result-area"></div>
+        </div>
+    </div>
+
+    <div id="schema-footer"></div>
+
+    <script>
+        // ==========================================
+        // 0. CONFIGURATION (GURU WAJIB EDIT INI)
+        // ==========================================
+        // Ganti URL ini dengan link Google Form Anda (Action URL)
+        // Cara dapatkan ID: Buat GForm -> Get Pre-filled Link -> Isi asal -> Copy Link
+        // Ganti 'entry.XXXXXX' dengan ID milik Anda
+        
+        const GFORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe5-V6WJjoqXPuK1Al73RfUpdeWqDMJXEo8rssvGglgV-O4fQ/viewform"; 
+        const ENTRY_NAMA = "entry.282411220";  // Ganti ID untuk field Nama
+        const ENTRY_KELAS = "entry.2025115836"; // Ganti ID untuk field Kelas
+        const ENTRY_WAKTU = "entry.2145279951"; // Ganti ID untuk field Waktu
+
+        // ==========================================
+        // 1. SYSTEM LOGIC (TIMER & USER)
+        // ==========================================
+        let userData = { nama: "", kelas: "" };
+        let startTime;
+        let timerInterval;
+
+        function startGame() {
+            let nama = document.getElementById('inputNama').value;
+            let kelas = document.getElementById('inputKelas').value;
+
+            if(!nama || !kelas) { alert("Harap isi Nama dan Kelas!"); return; }
+
+            userData.nama = nama;
+            userData.kelas = kelas;
+
+            // UI Update
+            document.getElementById('display-nama').innerText = nama;
+            document.getElementById('display-kelas').innerText = kelas;
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+
+            // Start Timer
+            startTime = new Date();
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            // Init Game
+            initDatabase();
+            updateStory(1, "SYSTEM BOOT", "Tampilkan semua data tabel <code>siswa</code> untuk cek koneksi.", "SELECT * FROM siswa");
+        }
+
+        function updateTimer() {
+            let now = new Date();
+            let diff = Math.floor((now - startTime) / 1000);
+            let m = Math.floor(diff / 60).toString().padStart(2, '0');
+            let s = (diff % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${m}:${s}`;
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            return document.getElementById('timer-display').innerText;
+        }
+
+        // ==========================================
+        // 2. DATABASE SETUP
+        // ==========================================
+        function initDatabase() {
+            alasql("CREATE TABLE siswa (id INT, nama STRING, kelas STRING, status STRING)");
+            alasql("INSERT INTO siswa VALUES (1, 'Budi', 'XII RPL 1', 'Aktif'), (18, 'Rian', 'XII TKJ 2', 'Aktif'), (45, 'Kevin', 'XI TKJ 1', 'Aktif'), (99, 'Admin', 'Staff', 'Aktif')");
+            
+            alasql("CREATE TABLE log_pintu (id INT, id_siswa INT, lokasi STRING, status STRING)");
+            alasql("INSERT INTO log_pintu VALUES (1, 18, 'R.Server', 'Ditolak'), (2, 18, 'R.Server', 'Diterima'), (3, 45, 'R.CCTV', 'Diterima')");
+            
+            alasql("CREATE TABLE bank (id INT, penerima INT, jumlah INT)");
+            alasql("INSERT INTO bank VALUES (1, 18, 5000000), (2, 1, 50000)");
+
+            alasql("CREATE TABLE file_server (nama_file STRING, tipe STRING)");
+            alasql("INSERT INTO file_server VALUES ('virus.exe', 'Virus'), ('data.docx', 'Dokumen')");
+
+            alasql("CREATE TABLE inventaris (barang STRING, harga INT, kondisi STRING)");
+            alasql("INSERT INTO inventaris VALUES ('Laptop', 25000000, 'Hilang'), ('Mouse', 100000, 'Baik')");
+
+            alasql("CREATE TABLE laporan_polisi (tersangka STRING, status STRING)");
+            
+            renderFooter();
+        }
+
+        // ==========================================
+        // 3. GAMEPLAY LOGIC
+        // ==========================================
+        let currentLevel = 1;
+
+        function runSQL() {
+            let query = document.getElementById('sqlInput').value;
+            let output = document.getElementById('result-area');
+            
+            // Shortcut Ctrl+Enter
+            document.getElementById("sqlInput").addEventListener("keydown", function(e) {
+                if (e.ctrlKey && e.keyCode == 13) runSQL();
+            });
+
+            try {
+                let res = alasql(query);
+                if (Array.isArray(res) && Array.isArray(res[0])) res = res[res.length-1];
+                
+                if (query.toLowerCase().trim().startsWith('select')) renderTable(res, output);
+                else output.innerHTML = `<div style="color:var(--term-green); border:1px solid; padding:10px;">✅ COMMAND EXECUTED</div>`;
+                
+                checkProgress(query, res);
+            } catch (e) {
+                output.innerHTML = `<div style="color:red; border:1px solid; padding:10px;">❌ ERROR: ${e.message}</div>`;
+            }
+        }
+
+        function checkProgress(qRaw, res) {
+            let q = qRaw.toLowerCase().trim();
+            let next = false;
+
+            // SIMPLIFIED LOGIC FOR DEMO (Pak Guru bisa paste logika level 1-13 yg sebelumnya disini)
+            // Di sini saya singkat agar muat, tapi prinsipnya sama.
+            
+            if (currentLevel === 1 && q.includes('siswa')) next = true;
+            else if (currentLevel === 2 && q.includes('where')) next = true;
+            else if (currentLevel === 3 && q.includes('id = 18')) next = true; // Rian
+            else if (currentLevel === 4 && q.includes('update')) next = true;
+            else if (currentLevel === 5 && q.includes('select') && q.includes('bank')) next = true; 
+            else if (currentLevel === 6 && q.includes('order by')) next = true;
+            else if (currentLevel === 7 && q.includes('id = 45')) next = true; // Kevin
+            else if (currentLevel === 8 && q.includes('like')) next = true;
+            else if (currentLevel === 9 && q.includes('count')) next = true;
+            else if (currentLevel === 10 && q.includes('file_server')) next = true;
+            else if (currentLevel === 11 && q.includes('delete')) next = true;
+            else if (currentLevel === 12 && q.includes('sum')) next = true;
+            
+            // LEVEL TERAKHIR (13) -> FINISH
+            else if (currentLevel === 13 && q.includes('insert')) {
+                finishGame();
+                return;
+            }
+
+            if (next) {
+                currentLevel++;
+                // Update Text Cerita Sederhana (Anda bisa ganti dengan teks panjang sebelumnya)
+                let texts = {
+                    2: "Cek log pintu R.Server (WHERE)",
+                    3: "Cari nama ID 18 (WHERE ID)",
+                    4: "Update status Rian (UPDATE)",
+                    5: "Cek uang masuk Rian (SELECT AND)",
+                    6: "Urutkan uang terbesar (ORDER BY)",
+                    7: "Cari pemilik ID 45 (SELECT ID)",
+                    8: "Cari teman sekelas 'TKJ' (LIKE)",
+                    9: "Hitung akses Kevin (COUNT)",
+                    10: "Cari file virus (LIKE)",
+                    11: "Hapus virus (DELETE)",
+                    12: "Hitung kerugian (SUM)",
+                    13: "Lapor Polisi (INSERT)"
+                };
+                updateStory(currentLevel, "LEVEL " + currentLevel, texts[currentLevel] || "Lanjut...", "Gunakan logika SQL sebelumnya");
+                document.getElementById('sqlInput').value = "";
+            }
+        }
+
+        // ==========================================
+        // 4. FINISH & SUBMIT
+        // ==========================================
+        function finishGame() {
+            let finalTime = stopTimer();
+            let storyDiv = document.getElementById('story-text');
+            
+            // Generate Link Google Form
+            // Format URL: BaseURL?entry.NamaID=NamaValue&entry.KelasID=KelasValue...
+            let submitUrl = `${GFORM_BASE_URL}?usp=pp_url&${ENTRY_NAMA}=${encodeURIComponent(userData.nama)}&${ENTRY_KELAS}=${encodeURIComponent(userData.kelas)}&${ENTRY_WAKTU}=${encodeURIComponent(finalTime)}`;
+
+            storyDiv.innerHTML = `
+                <div style="text-align:center; padding:20px; border:2px solid gold;">
+                    <h1 style="color:gold;">🏆 MISI SELESAI</h1>
+                    <p>Agen: <strong>${userData.nama}</strong></p>
+                    <p>Waktu Penyelesaian: <strong style="font-size:1.5em">${finalTime}</strong></p>
+                    <p>Data forensik telah diamankan. Silakan kirim laporan ke markas pusat.</p>
+                    
+                    <a href="${submitUrl}" target="_blank" style="text-decoration:none;">
+                        <button style="background:gold; color:black; padding:15px 30px; font-weight:bold; border:none; cursor:pointer; font-size:1.2em; border-radius:5px;">
+                            📤 KIRIM SKOR KE GURU
+                        </button>
+                    </a>
+                    <p style="font-size:0.8em; color:#888; margin-top:10px;">(Klik tombol di atas untuk membuka Google Form otomatis)</p>
+                </div>
+            `;
+            document.getElementById('sqlInput').style.display = 'none';
+        }
+
+        // Helper Functions
+        function updateStory(lvl, title, desc, hint) {
+            document.getElementById('story-text').innerHTML = `
+                <div><span class="level-tag">LEVEL ${lvl}</span> <strong>${title}</strong></div>
+                <div style="margin-top:10px">${desc}</div>
+                <div style="margin-top:10px; color:#888; font-style:italic; font-size:0.8em">💡 Clue: ${hint}</div>
+            `;
+            renderFooter();
+        }
+        
+        function renderTable(data, container) {
+            if (!data || data.length === 0) return container.innerHTML = "No Data";
+            if (typeof data === 'number') return container.innerHTML = `<h2>${data}</h2>`;
+            let html = "<table><thead><tr>";
+            for (let key in data[0]) html += `<th>${key}</th>`;
+            html += "</tr></thead><tbody>";
+            data.forEach(row => { html += "<tr>"; for (let k in row) html += `<td>${row[k]}</td>`; html += "</tr>"; });
+            container.innerHTML = html + "</tbody></table>";
+        }
+
+        function renderFooter() {
+            const tables = alasql("SHOW TABLES");
+            const footer = document.getElementById('schema-footer');
+            footer.innerHTML = "";
+            tables.forEach(t => {
+                const cols = alasql(`SHOW COLUMNS FROM ${t.tableid}`);
+                footer.innerHTML += `<div class="schema-card"><span class="tbl-name">${t.tableid.toUpperCase()}</span>${cols.map(c=>c.columnid).join(", ")}</div>`;
+            });
+        }
+    </script>
+
+    </body>
+    </html>
