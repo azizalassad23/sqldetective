@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Exam: Cyber Detective (23 Levels)</title>
+    <title>Final Exam: Cyber Detective (23 Levels - Fixed)</title>
     <script src="https://cdn.jsdelivr.net/npm/alasql@1.7.3/dist/alasql.min.js"></script>
     <style>
         :root { --bg: #0d1117; --green: #00ff41; --red: #ff3333; --yellow: #ffd700; --panel: #161b22; --border: #30363d; }
@@ -300,7 +300,7 @@
         let q = qRaw.toLowerCase().trim();
         let next = false;
 
-        // CHECK LEVELS
+        // CHECK LEVELS (1-23)
         if (currentLevel === 1 && q.includes('siswa')) next = true;
         else if (currentLevel === 2 && q.includes('where') && q.includes('server')) next = true;
         else if (currentLevel === 3 && q.includes('id = 18')) next = true;
@@ -334,33 +334,34 @@
         }
     }
 
+    // DISINI PERBAIKANNYA (Menggunakan title dan desc)
     function getStory(lvl) {
         const stories = {
-            2: {t: "LACAK LOKASI", d: "Cek log pintu 'R.Server'. Filter menggunakan WHERE."},
-            3: {t: "IDENTIFIKASI", d: "ID 18 mencurigakan. Cari namanya di tabel siswa."},
-            4: {t: "PEMBEKUAN", d: "Update status siswa ID 18 menjadi 'Suspended'."},
-            5: {t: "ALIRAN DANA", d: "Cek tabel bank. Siapa penerima uang > 1 Juta?"},
-            6: {t: "BOS BESAR", d: "Urutkan transaksi bank berdasarkan jumlah terbesar (DESC)."},
-            7: {t: "PROFILING", d: "Dalang adalah ID 45. Cari datanya di tabel siswa."},
-            8: {t: "JARINGAN", d: "Cari teman sekelasnya (LIKE '%TKJ%')."},
-            9: {t: "INTENSITAS", d: "Hitung (COUNT) berapa kali Kevin (ID 45) akses pintu."},
-            10: {t: "SCAN VIRUS", d: "Cari file berekstensi .exe di file_server."},
-            11: {t: "HAPUS VIRUS", d: "Hapus file bertipe 'Virus' dari server."},
-            12: {t: "KERUGIAN", d: "Hitung total harga (SUM) barang 'Hilang'."},
-            13: {t: "LAPORAN", d: "Insert laporan polisi: Tersangka 'Kevin', Status 'Diproses'."},
-            14: {t: "JEJAK UNIK (DISTINCT)", d: "Tampilkan <code>lokasi</code> unik dari <code>log_pintu</code>."},
-            15: {t: "POLA SERANGAN (GROUP BY)", d: "Hitung jumlah akses per lokasi (GROUP BY)."},
-            16: {t: "TITIK LEMAH (HAVING)", d: "Lokasi mana yang diakses > 2 kali? (HAVING COUNT > 2)."},
-            17: {t: "DATA TERBESAR (MAX)", d: "Cek nominal transaksi paling besar di tabel bank."},
-            18: {t: "KONEKSI PERANGKAT (JOIN)", d: "Gabungkan tabel <code>siswa</code> dan <code>perangkat</code>. Tampilkan nama dan OS."},
-            19: {t: "TOP 3 (LIMIT)", d: "Tampilkan 3 siswa pertama berdasarkan ID (LIMIT 3)."},
-            20: {t: "LOCKDOWN", d: "Kunci akses Admin (ID 99). Update status jadi 'Banned'."},
+            2: {title: "LACAK LOKASI", desc: "Cek log pintu 'R.Server'. Filter menggunakan WHERE."},
+            3: {title: "IDENTIFIKASI", desc: "ID 18 mencurigakan. Cari namanya di tabel siswa."},
+            4: {title: "PEMBEKUAN", desc: "Update status siswa ID 18 menjadi 'Suspended'."},
+            5: {title: "ALIRAN DANA", desc: "Cek tabel bank. Siapa penerima uang > 1 Juta?"},
+            6: {title: "BOS BESAR", desc: "Urutkan transaksi bank berdasarkan jumlah terbesar (DESC)."},
+            7: {title: "PROFILING", desc: "Dalang adalah ID 45. Cari datanya di tabel siswa."},
+            8: {title: "JARINGAN", desc: "Cari teman sekelasnya (LIKE '%TKJ%')."},
+            9: {title: "INTENSITAS", desc: "Hitung (COUNT) berapa kali Kevin (ID 45) akses pintu."},
+            10: {title: "SCAN VIRUS", desc: "Cari file berekstensi .exe di file_server."},
+            11: {title: "HAPUS VIRUS", desc: "Hapus file bertipe 'Virus' dari server."},
+            12: {title: "KERUGIAN", desc: "Hitung total harga (SUM) barang 'Hilang'."},
+            13: {title: "LAPORAN", desc: "Insert laporan polisi: Tersangka 'Kevin', Status 'Diproses'."},
+            14: {title: "JEJAK UNIK (DISTINCT)", desc: "Tampilkan <code>lokasi</code> unik dari <code>log_pintu</code>."},
+            15: {title: "POLA SERANGAN (GROUP BY)", desc: "Hitung jumlah akses per lokasi (GROUP BY)."},
+            16: {title: "TITIK LEMAH (HAVING)", desc: "Lokasi mana yang diakses > 2 kali? (HAVING COUNT > 2)."},
+            17: {title: "DATA TERBESAR (MAX)", desc: "Cek nominal transaksi paling besar di tabel bank."},
+            18: {title: "KONEKSI PERANGKAT (JOIN)", desc: "Gabungkan tabel <code>siswa</code> dan <code>perangkat</code>. Tampilkan nama dan OS."},
+            19: {title: "TOP 3 (LIMIT)", desc: "Tampilkan 3 siswa pertama berdasarkan ID (LIMIT 3)."},
+            20: {title: "LOCKDOWN", desc: "Kunci akses Admin (ID 99). Update status jadi 'Banned'."},
             // NEW 21-23
-            21: {t: "OS HACKER (SUBQUERY)", d: "Ada perangkat menggunakan 'Kali Linux'. Siapa pemiliknya? Gunakan: <code>SELECT nama FROM siswa WHERE id IN (SELECT id_siswa FROM perangkat WHERE os = 'Kali Linux')</code>."},
-            22: {t: "RATA-RATA SUAP (AVG)", d: "Pihak berwajib meminta data rata-rata uang suap. Hitung rata-rata (AVG) kolom <code>jumlah</code> di tabel <code>bank</code>."},
-            23: {t: "HILANGKAN JEJAK (DROP)", d: "Misi rahasia: Agar sekolah tidak tahu kita meretas balik sistem mereka, hapus tabel log. Gunakan perintah <code>DROP TABLE log_pintu</code>."}
+            21: {title: "OS HACKER (SUBQUERY)", desc: "Ada perangkat menggunakan 'Kali Linux'. Siapa pemiliknya? Gunakan: <code>SELECT nama FROM siswa WHERE id IN (SELECT id_siswa FROM perangkat WHERE os = 'Kali Linux')</code>."},
+            22: {title: "RATA-RATA SUAP (AVG)", desc: "Pihak berwajib meminta data rata-rata uang suap. Hitung rata-rata (AVG) kolom <code>jumlah</code> di tabel <code>bank</code>."},
+            23: {title: "HILANGKAN JEJAK (DROP)", desc: "Misi rahasia: Agar sekolah tidak tahu kita meretas balik sistem mereka, hapus tabel log. Gunakan perintah <code>DROP TABLE log_pintu</code>."}
         };
-        return stories[lvl] || {t: "LANJUT", d: "Teruskan..."};
+        return stories[lvl] || {title: "LANJUT", desc: "Teruskan..."};
     }
 
     function updateStory(lvl, title, desc) {
@@ -371,7 +372,7 @@
 
     function finishGame() {
         clearInterval(timerInterval);
-        isGameActive = false; // Matikan anti-cheat agar tidak terdeteksi saat submit
+        isGameActive = false; // Disable Anti-Cheat logic
         let finalTime = document.getElementById('timer-display').innerText;
         document.getElementById('input-section').style.display = 'none';
 
