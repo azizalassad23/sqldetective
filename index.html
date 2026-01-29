@@ -3,134 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber Detective: Final Exam (Secure Mode)</title>
+    <title>Final Exam: Cyber Detective (23 Levels)</title>
     <script src="https://cdn.jsdelivr.net/npm/alasql@1.7.3/dist/alasql.min.js"></script>
     <style>
-        :root {
-            --bg-color: #0d1117;
-            --term-green: #00ff41;
-            --term-red: #ff3333;
-            --panel-bg: #161b22;
-            --border: #30363d;
-        }
-        body { font-family: 'Consolas', monospace; background-color: var(--bg-color); color: #c9d1d9; padding: 20px; max-width: 950px; margin: auto; padding-bottom: 60px; user-select: none; /* Mencegah copy paste soal */ }
+        :root { --bg: #0d1117; --green: #00ff41; --red: #ff3333; --yellow: #ffd700; --panel: #161b22; --border: #30363d; }
+        body { font-family: 'Consolas', monospace; background: var(--bg); color: #c9d1d9; padding: 20px; max-width: 950px; margin: auto; padding-bottom: 80px; user-select: none; }
         
-        /* LOGIN SCREEN */
-        #login-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 5000;
-            display: flex; justify-content: center; align-items: center;
-            flex-direction: column;
-        }
-        .login-box {
-            border: 1px solid var(--term-green); padding: 40px; border-radius: 4px;
-            background: #0a0a0a; text-align: center; box-shadow: 0 0 20px rgba(0,255,65,0.1);
-            width: 320px;
-        }
-        .login-input {
-            width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; color: white; font-family: inherit; outline: none;
-        }
-        .login-input:focus { border-color: var(--term-green); }
-        .start-btn {
-            background: var(--term-green); color: black; font-weight: bold; width: 100%; padding: 12px; border: none; cursor: pointer; margin-top: 20px; transition: 0.3s;
-        }
-        .start-btn:hover { background: #00cc33; box-shadow: 0 0 15px var(--term-green); }
-
-        /* CHEATING OVERLAY (RED SCREEN) */
-        #cheating-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #1a0000; color: var(--term-red); z-index: 9999;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; border: 5px solid var(--term-red);
-        }
-        .cheat-alert { font-size: 3em; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; animation: blink 1s infinite; }
-        .cheat-timer { font-size: 5em; font-weight: bold; color: white; margin: 20px 0; font-family: monospace; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* GAME UI */
+        /* UI UTAMA */
         #game-container { display: none; }
+        .container { background: var(--panel); padding: 25px; border-radius: 6px; border: 1px solid var(--border); margin-top: 10px; }
+        h1 { text-align: center; color: var(--green); margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px dashed #333; padding-bottom: 15px; }
         
-        .container { background: var(--panel-bg); padding: 25px; border-radius: 6px; border: 1px solid var(--border); margin-top: 10px;}
-        h1 { text-align: center; color: var(--term-green); margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase; font-size: 1.5em; border-bottom: 1px dashed #333; padding-bottom: 15px;}
-        
-        .story-box { background: #050505; padding: 15px 20px; border-left: 3px solid var(--term-green); margin-bottom: 20px; line-height: 1.5; font-size: 0.95em; color: #d0d7de; }
-        .level-tag { background: var(--term-green); color: black; padding: 2px 6px; font-weight: bold; font-size: 0.75em; margin-right: 8px; border-radius: 2px; }
-        
-        textarea { width: 100%; height: 70px; background: #0d1117; color: var(--term-green); border: 1px solid #30363d; padding: 10px; font-size: 1em; box-sizing: border-box; resize: vertical; }
-        textarea:focus { outline: none; border-color: var(--term-green); }
-        
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        button.exec-btn { background: #238636; color: white; border: none; padding: 8px 20px; cursor: pointer; font-size: 14px; border-radius: 4px; font-family: inherit; font-weight: bold; width: 100%;}
+        /* INPUT & STORY */
+        .story-box { background: #050505; padding: 15px 20px; border-left: 3px solid var(--green); margin-bottom: 20px; line-height: 1.5; font-size: 0.95em; color: #d0d7de; }
+        .level-tag { background: var(--green); color: black; padding: 2px 6px; font-weight: bold; font-size: 0.75em; margin-right: 8px; border-radius: 2px; }
+        textarea { width: 100%; height: 70px; background: #0d1117; color: var(--green); border: 1px solid var(--border); padding: 10px; font-size: 1em; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--green); }
+        button.exec-btn { background: #238636; color: white; border: none; padding: 10px; cursor: pointer; font-size: 14px; border-radius: 4px; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.2s;}
         button.exec-btn:hover { background: #2ea043; }
 
+        /* TABEL HASIL */
         #result-area { margin-top: 20px; overflow-x: auto; border-top: 1px solid var(--border); padding-top: 15px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
-        th, td { border: 1px solid #30363d; padding: 6px 10px; text-align: left; }
+        th, td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
         th { background: #21262d; color: #fff; }
         tr:nth-child(even) { background-color: #0d1117; }
 
-        /* FOOTER STATUS BAR */
-        #schema-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 35px;
-            background: #050505; border-top: 1px solid #333;
-            display: flex; align-items: center; padding: 0 15px;
-            gap: 20px; overflow-x: auto; z-index: 100;
-            white-space: nowrap; font-size: 0.8em;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
-        }
+        /* FOOTER */
+        #schema-footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 40px; background: #050505; border-top: 1px solid #333; display: flex; align-items: center; padding: 0 15px; gap: 20px; overflow-x: auto; z-index: 100; white-space: nowrap; font-size: 0.8em; }
         #schema-footer::-webkit-scrollbar { height: 3px; }
         #schema-footer::-webkit-scrollbar-thumb { background: #333; }
-
-        .schema-item { color: #666; transition: 0.3s; cursor: default; }
-        .schema-item strong { color: #999; font-weight: bold; margin-right: 3px; }
-        .schema-item span { font-size: 0.9em; opacity: 0.7; }
-        .schema-item:hover strong { color: var(--term-green); }
-        .schema-item:hover span { color: #fff; opacity: 1; }
-        .footer-label { color: var(--term-green); font-weight: bold; margin-right: 5px; font-size: 0.9em; }
-
-        /* INFO BAR */
+        .schema-item strong { color: #999; margin-right: 3px; }
+        .schema-item:hover strong { color: var(--green); }
+        
         .info-bar { display: flex; justify-content: space-between; margin-bottom: 10px; color: #666; font-size: 0.85em; border-bottom: 1px solid #222; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        #timer-display { color: var(--term-green); font-weight: bold; font-size: 1.1em;}
+        #timer-display { color: var(--green); font-weight: bold; font-size: 1.1em;}
+
+        /* OVERLAYS (LOGIN, WARNING, PUNISH) */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000; display: none; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
+        
+        #login-overlay { background: #000; display: flex; } /* Default visible */
+        .login-box { border: 1px solid var(--green); padding: 40px; border-radius: 4px; background: #0a0a0a; width: 320px; }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; color: white; outline: none; }
+        .login-input:focus { border-color: var(--green); }
+        .start-btn { background: var(--green); color: black; font-weight: bold; width: 100%; padding: 12px; border: none; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        
+        /* WARNING (YELLOW) */
+        #warning-overlay { background: rgba(50, 40, 0, 0.95); border: 5px solid var(--yellow); color: var(--yellow); z-index: 8000; }
+        .warn-btn { background: var(--yellow); color: black; border: none; padding: 10px 30px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1.2em; }
+
+        /* PUNISHMENT (RED) */
+        #punish-overlay { background: #1a0000; color: var(--red); border: 5px solid var(--red); z-index: 9999; }
+        .cheat-timer { font-size: 5em; font-weight: bold; color: white; margin: 20px 0; font-family: monospace; }
+        
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--green); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div id="cheating-overlay">
-    <div class="cheat-alert">⚠️ ILLEGAL ACTION DETECTED ⚠️</div>
-    <p>Sistem mendeteksi Anda berpindah tab atau jendela.</p>
-    <p>Akses dibekukan selama:</p>
-    <div id="punish-timer" class="cheat-timer">05:00</div>
-    <p>Game akan di-RESET ke awal setelah waktu habis.</p>
+<div id="warning-overlay" class="overlay">
+    <h1 style="color:var(--yellow)">⚠️ PERINGATAN SISTEM ⚠️</h1>
+    <h2>ANDA TERDETEKSI MENINGGALKAN HALAMAN UJIAN</h2>
+    <p>Ini adalah <strong>PERINGATAN PERTAMA DAN TERAKHIR</strong>.</p>
+    <p>Jika Anda berpindah tab/jendela sekali lagi, akses akan dikunci selama 10 MENIT.</p>
+    <button class="warn-btn" onclick="dismissWarning()">SAYA MENGERTI</button>
 </div>
 
-<div id="login-overlay">
+<div id="punish-overlay" class="overlay">
+    <h1 style="color:var(--red)">⛔ AKSES DIBLOKIR ⛔</h1>
+    <p>Anda telah melanggar aturan ujian (Multi-tab/Switch Window).</p>
+    <p>Sistem terkunci sementara. Timer ujian tetap berjalan.</p>
+    <div id="punish-timer" class="cheat-timer">10:00</div>
+    <p>Halaman akan otomatis RESET ke Level 1 setelah waktu habis.</p>
+    <p style="font-size:0.8em; color:#666">Jangan coba refresh, timer hukuman tersimpan di sistem.</p>
+</div>
+
+<div id="login-overlay" class="overlay">
     <div class="login-box">
-        <h2 style="color:var(--term-green); margin-top:0; margin-bottom:5px;">SECURE LOGIN</h2>
-        <p style="color:#666; font-size:0.8em; margin-bottom:20px;">SQL EXAM MODE</p>
-        <input type="text" id="inputNama" class="login-input" placeholder="Masukkan Nama Lengkap" autocomplete="off">
-        <input type="text" id="inputKelas" class="login-input" placeholder="Masukkan Kelas" autocomplete="off">
-        <button class="start-btn" onclick="startGame()">START EXAM >></button>
+        <h2 style="color:var(--green); margin-top:0; margin-bottom:5px;">SECURE LOGIN</h2>
+        <p style="color:#666; font-size:0.8em; margin-bottom:20px;">SQL FINAL EXAM - 23 LEVELS</p>
+        <input type="text" id="inputNama" class="login-input" placeholder="Nama Lengkap" autocomplete="off">
+        <input type="text" id="inputKelas" class="login-input" placeholder="Kelas" autocomplete="off">
+        <button class="start-btn" onclick="startGame()">MULAI UJIAN >></button>
     </div>
 </div>
 
 <div id="game-container">
     <div class="info-bar">
-        <span><span style="color:var(--term-green)">USER:</span> <span id="display-nama">-</span> | <span id="display-kelas">-</span></span>
-        <span>REC: <span id="timer-display">00:00</span></span>
+        <span>AGEN: <span id="display-nama">-</span> | <span id="display-kelas">-</span></span>
+        <span>DURASI: <span id="timer-display">00:00</span></span>
     </div>
 
     <div class="container">
-        <h1>🕵️‍♂️ Cyber Detective</h1>
-        
+        <h1>🕵️‍♂️ Cyber Detective: Final</h1>
         <div class="story-box" id="story-text"></div>
-
-        <div>
-            <textarea id="sqlInput" placeholder=">_ SELECT * FROM..."></textarea>
-            <div class="btn-group">
-                <button class="exec-btn" onclick="runSQL()">EKSEKUSI PERINTAH (Ctrl+Enter)</button>
-            </div>
+        <div id="input-section">
+            <textarea id="sqlInput" placeholder=">_ Ketik perintah SQL..."></textarea>
+            <button class="exec-btn" onclick="runSQL()">EKSEKUSI (Ctrl+Enter)</button>
         </div>
-
         <div id="result-area"></div>
     </div>
 </div>
@@ -141,111 +112,171 @@
     // ==========================================
     // CONFIGURATION (GURU WAJIB EDIT)
     // ==========================================
-    const GFORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe5-V6WJjoqXPuK1Al73RfUpdeWqDMJXEo8rssvGglgV-O4fQ/viewform"; 
-    const ENTRY_NAMA = "entry.282411220";  // Ganti ID untuk field Nama
-    const ENTRY_KELAS = "entry.2025115836"; // Ganti ID untuk field Kelas
-    const ENTRY_WAKTU = "entry.2145279951"; // Ganti ID untuk field Waktu 
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcUFfEVLaRm-icJVOXAJhwVEqvUpKFVixXiv7E8D184aDiJpNa1kE1I1pPNay7b7nkVA/exec"; 
 
     // ==========================================
-    // SYSTEM LOGIC
+    // SYSTEM VARIABLES
     // ==========================================
     let userData = { nama: "", kelas: "" };
     let startTime;
     let timerInterval;
     let currentLevel = 1;
-    let isLocked = false;
     let isGameActive = false;
+    
+    // Anti-Cheat Variables (Local Storage Integration)
+    const PUNISH_DURATION_MS = 10 * 60 * 1000; // 10 Menit
+    
+    // ==========================================
+    // INITIALIZATION & CHECK LOCK
+    // ==========================================
+    window.onload = function() {
+        checkLockState();
+    };
+
+    function checkLockState() {
+        const lockUntil = localStorage.getItem('sql_lock_until');
+        if (lockUntil) {
+            const now = new Date().getTime();
+            if (now < lockUntil) {
+                // Masih dihukum -> Tampilkan Layar Merah
+                showPunishment(lockUntil);
+            } else {
+                // Hukuman selesai -> Hapus data, Reset Game
+                localStorage.removeItem('sql_lock_until');
+                localStorage.removeItem('sql_cheat_count');
+                alert("Waktu hukuman selesai. Game di-reset ke awal.");
+                location.reload(); 
+            }
+        }
+    }
 
     function startGame() {
         let nama = document.getElementById('inputNama').value;
         let kelas = document.getElementById('inputKelas').value;
-        if(!nama || !kelas) { alert("Isi identitas!"); return; }
+        if(!nama || !kelas) { alert("Data tidak boleh kosong!"); return; }
 
         userData.nama = nama;
         userData.kelas = kelas;
-
         document.getElementById('display-nama').innerText = nama;
         document.getElementById('display-kelas').innerText = kelas;
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('game-container').style.display = 'block';
 
+        // Reset cheat count di sesi baru (jika tidak sedang dihukum)
+        if(!localStorage.getItem('sql_lock_until')) {
+            localStorage.setItem('sql_cheat_count', 0);
+        }
+
         startTime = new Date();
         timerInterval = setInterval(updateTimer, 1000);
         isGameActive = true;
         
-        // Aktifkan Anti-Cheat
         enableAntiCheat();
-
         initDatabase();
+        
         updateStory(1, "SYSTEM CHECK", "Lakukan pengecekan sistem. Tampilkan semua data dari tabel <code>siswa</code>.");
     }
 
     // ==========================================
-    // ANTI-CHEAT SYSTEM
+    // ANTI-CHEAT LOGIC (PERSISTENT)
     // ==========================================
     function enableAntiCheat() {
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden && isGameActive) triggerPunishment();
-        });
-        
-        window.addEventListener("blur", () => {
-            if (isGameActive) triggerPunishment();
-        });
+        document.addEventListener("visibilitychange", handleViolation);
+        window.addEventListener("blur", handleViolation);
     }
 
-    function triggerPunishment() {
-        if(isLocked) return; // Jangan trigger kalau sudah kekunci
-        isLocked = true;
-        clearInterval(timerInterval); // Stop timer game
+    function handleViolation() {
+        // Cek apakah game aktif dan window sedang tidak fokus
+        if (isGameActive && (document.hidden || !document.hasFocus())) {
+            let cheatCount = parseInt(localStorage.getItem('sql_cheat_count') || 0);
+            
+            if (cheatCount === 0) {
+                // Pelanggaran Pertama: Warning
+                cheatCount++;
+                localStorage.setItem('sql_cheat_count', cheatCount);
+                document.getElementById('warning-overlay').style.display = 'flex';
+                // Pause game interaction sementara
+                document.getElementById('sqlInput').disabled = true;
+            } else {
+                // Pelanggaran Kedua: LOCKDOWN
+                triggerLockdown();
+            }
+        }
+    }
 
-        const overlay = document.getElementById('cheating-overlay');
-        const timerDisplay = document.getElementById('punish-timer');
-        overlay.style.display = 'flex';
+    function dismissWarning() {
+        document.getElementById('warning-overlay').style.display = 'none';
+        document.getElementById('sqlInput').disabled = false;
+    }
 
-        let punishTime = 300; // 300 detik = 5 Menit
+    function triggerLockdown() {
+        isGameActive = false;
+        clearInterval(timerInterval);
+        
+        // Set waktu kunci (Sekarang + 10 Menit)
+        const lockUntil = new Date().getTime() + PUNISH_DURATION_MS;
+        localStorage.setItem('sql_lock_until', lockUntil);
+        
+        showPunishment(lockUntil);
+    }
 
-        let punishInterval = setInterval(() => {
-            let m = Math.floor(punishTime / 60).toString().padStart(2, '0');
-            let s = (punishTime % 60).toString().padStart(2, '0');
-            timerDisplay.innerText = `${m}:${s}`;
-            punishTime--;
+    function showPunishment(endTime) {
+        document.getElementById('punish-overlay').style.display = 'flex';
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('warning-overlay').style.display = 'none';
 
-            if (punishTime < 0) {
-                clearInterval(punishInterval);
-                location.reload(); // RESET GAME KE AWAL
+        const pTimer = document.getElementById('punish-timer');
+        
+        // Interval hitung mundur hukuman
+        let interval = setInterval(() => {
+            let now = new Date().getTime();
+            let distance = endTime - now;
+
+            if (distance < 0) {
+                clearInterval(interval);
+                // Reset Total
+                localStorage.removeItem('sql_lock_until');
+                localStorage.removeItem('sql_cheat_count');
+                location.reload();
+            } else {
+                let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                let s = Math.floor((distance % (1000 * 60)) / 1000);
+                pTimer.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             }
         }, 1000);
     }
 
     function updateTimer() {
-        let now = new Date();
-        let diff = Math.floor((now - startTime) / 1000);
-        let m = Math.floor(diff / 60).toString().padStart(2, '0');
-        let s = (diff % 60).toString().padStart(2, '0');
+        let diff = Math.floor((new Date() - startTime) / 1000);
+        let m = Math.floor(diff/60).toString().padStart(2,'0');
+        let s = (diff%60).toString().padStart(2,'0');
         document.getElementById('timer-display').innerText = `${m}:${s}`;
     }
 
-    function stopTimer() {
-        clearInterval(timerInterval);
-        isGameActive = false; // Matikan anti-cheat saat game selesai
-        return document.getElementById('timer-display').innerText;
-    }
-
     // ==========================================
-    // DATABASE & GAME ENGINE
+    // DATABASE & GAME ENGINE (23 LEVELS)
     // ==========================================
     function initDatabase() {
         alasql("CREATE TABLE siswa (id INT, nama STRING, kelas STRING, status STRING)");
-        alasql("INSERT INTO siswa VALUES (1, 'Budi Santoso', 'XII RPL 1', 'Aktif'), (18, 'Rian Hidayat', 'XII TKJ 2', 'Aktif'), (45, 'Kevin', 'XI TKJ 1', 'Aktif'), (99, 'Admin Sekolah', 'Staff', 'Aktif')");
+        alasql("INSERT INTO siswa VALUES (1, 'Budi Santoso', 'XII RPL 1', 'Aktif'), (18, 'Rian Hidayat', 'XII TKJ 2', 'Aktif'), (45, 'Kevin', 'XI TKJ 1', 'Aktif'), (99, 'Admin Sekolah', 'Staff', 'Aktif'), (100, 'Mr. X', 'Unknown', 'Aktif')");
+        
         alasql("CREATE TABLE log_pintu (id INT, id_siswa INT, lokasi STRING, status STRING)");
-        alasql("INSERT INTO log_pintu VALUES (101, 18, 'R.Server', 'Ditolak'), (102, 18, 'R.Server', 'Diterima'), (103, 45, 'R.CCTV', 'Diterima')");
-        alasql("CREATE TABLE bank (id INT, penerima INT, jumlah INT)");
-        alasql("INSERT INTO bank VALUES (501, 18, 5000000), (502, 1, 50000)");
-        alasql("CREATE TABLE file_server (nama_file STRING, tipe STRING)");
-        alasql("INSERT INTO file_server VALUES ('virus.exe', 'Virus'), ('laporan.docx', 'Dokumen')");
+        alasql("INSERT INTO log_pintu VALUES (101, 18, 'R.Server', 'Ditolak'), (102, 18, 'R.Server', 'Diterima'), (103, 45, 'R.CCTV', 'Diterima'), (104, 1, 'Kantin', 'Masuk'), (105, 1, 'Kantin', 'Keluar'), (106, 99, 'R.Guru', 'Masuk'), (107, 45, 'R.Server', 'Diterima'), (108, 45, 'R.Server', 'Keluar')");
+        
+        alasql("CREATE TABLE bank (id INT, penerima INT, jumlah INT, tanggal STRING)");
+        alasql("INSERT INTO bank VALUES (501, 18, 5000000, '2025-01-10'), (502, 1, 50000, '2025-01-11'), (503, 45, 15000000, '2025-01-12'), (504, 45, 2000000, '2025-01-13')");
+
+        alasql("CREATE TABLE file_server (id INT, nama_file STRING, tipe STRING, ukuran_mb INT)");
+        alasql("INSERT INTO file_server VALUES (1, 'virus.exe', 'Virus', 20), (2, 'laporan.docx', 'Dokumen', 5), (3, 'data_rahasia.rar', 'Arsip', 500), (4, 'malware.bat', 'Virus', 1)");
+
         alasql("CREATE TABLE inventaris (barang STRING, harga INT, kondisi STRING)");
-        alasql("INSERT INTO inventaris VALUES ('Laptop ROG', 25000000, 'Hilang'), ('Mouse', 100000, 'Baik')");
+        alasql("INSERT INTO inventaris VALUES ('Laptop ROG', 25000000, 'Hilang'), ('Mouse', 100000, 'Baik'), ('Proyektor', 5000000, 'Rusak')");
+        
         alasql("CREATE TABLE laporan_polisi (tersangka STRING, status STRING)");
+        alasql("CREATE TABLE perangkat (id_perangkat INT, id_siswa INT, mac_address STRING, os STRING)");
+        alasql("INSERT INTO perangkat VALUES (1, 1, 'AA:BB:CC:01', 'Windows'), (2, 18, 'AA:BB:CC:02', 'Linux'), (3, 45, 'AA:BB:CC:99', 'Kali Linux'), (4, 99, 'AA:BB:CC:88', 'MacOS')");
+
         renderFooter();
     }
 
@@ -258,7 +289,7 @@
             let res = alasql(query);
             if (Array.isArray(res) && Array.isArray(res[0])) res = res[res.length-1];
             if (query.toLowerCase().trim().startsWith('select')) renderTable(res, output);
-            else output.innerHTML = `<div style="color:var(--term-green); border:1px solid; padding:8px;">✅ PERINTAH DITERIMA</div>`;
+            else output.innerHTML = `<div style="color:var(--green); border:1px solid; padding:8px;">✅ PERINTAH DITERIMA</div>`;
             checkProgress(query, res);
         } catch (e) {
             output.innerHTML = `<div style="color:red; border:1px solid; padding:8px;">❌ ERROR: ${e.message}</div>`;
@@ -269,12 +300,12 @@
         let q = qRaw.toLowerCase().trim();
         let next = false;
 
-        // NO HINTS MODE
+        // CHECK LEVELS
         if (currentLevel === 1 && q.includes('siswa')) next = true;
-        else if (currentLevel === 2 && q.includes('where')) next = true;
+        else if (currentLevel === 2 && q.includes('where') && q.includes('server')) next = true;
         else if (currentLevel === 3 && q.includes('id = 18')) next = true;
         else if (currentLevel === 4 && q.includes('update')) next = true;
-        else if (currentLevel === 5 && q.includes('bank')) next = true;
+        else if (currentLevel === 5 && q.includes('bank') && q.includes('>')) next = true;
         else if (currentLevel === 6 && q.includes('order by')) next = true;
         else if (currentLevel === 7 && q.includes('id = 45')) next = true;
         else if (currentLevel === 8 && q.includes('like')) next = true;
@@ -282,62 +313,116 @@
         else if (currentLevel === 10 && q.includes('file_server')) next = true;
         else if (currentLevel === 11 && q.includes('delete')) next = true;
         else if (currentLevel === 12 && q.includes('sum')) next = true;
-        else if (currentLevel === 13 && q.includes('insert')) { finishGame(); return; }
+        else if (currentLevel === 13 && q.includes('insert')) next = true;
+        else if (currentLevel === 14 && q.includes('distinct')) next = true;
+        else if (currentLevel === 15 && q.includes('group by')) next = true;
+        else if (currentLevel === 16 && q.includes('having')) next = true;
+        else if (currentLevel === 17 && (q.includes('max') || q.includes('min'))) next = true;
+        else if (currentLevel === 18 && q.includes('join')) next = true;
+        else if (currentLevel === 19 && q.includes('limit')) next = true;
+        else if (currentLevel === 20 && q.includes('update') && q.includes('99')) next = true;
+        // NEW LEVELS 21-23
+        else if (currentLevel === 21 && q.includes('select') && q.includes('in') && q.includes('perangkat')) next = true;
+        else if (currentLevel === 22 && q.includes('avg')) next = true;
+        else if (currentLevel === 23 && q.includes('drop table')) { finishGame(); return; }
 
         if (next) {
             currentLevel++;
-            let stories = {
-                2: "Cek log pintu 'R.Server' untuk melihat jejak akses.",
-                3: "Tersangka ditemukan dengan ID 18. Cari tahu siapa namanya di tabel siswa.",
-                4: "Amankan situasi. Update status siswa tersebut menjadi 'Suspended'.",
-                5: "Selidiki aliran dana. Cek transfer masuk ke tersangka yang > 1 Juta.",
-                6: "Siapa penyandang dananya? Urutkan transaksi bank berdasarkan jumlah terbesar.",
-                7: "Dalang teridentifikasi dengan ID 45. Cari profil lengkapnya di database.",
-                8: "Analisis jaringan. Cari teman sekelasnya yang juga dari jurusan 'TKJ'.",
-                9: "Cek intensitas akses fisik si dalang (ID 45) di semua pintu.",
-                10: "Scan server. Cari nama file yang mencurigakan (ekstensi .exe).",
-                11: "Ancaman ditemukan. Hapus file virus tersebut dari server sekarang!",
-                12: "Hitung total kerugian aset sekolah yang berstatus 'Hilang'.",
-                13: "Kasus selesai. Buat laporan polisi baru (Insert) dengan status tersangka 'Diproses'."
-            };
-            updateStory(currentLevel, "LEVEL " + currentLevel, stories[currentLevel] || "Lanjutkan investigasi...");
+            let s = getStory(currentLevel);
+            updateStory(currentLevel, s.title, s.desc);
             document.getElementById('sqlInput').value = "";
         }
     }
 
+    function getStory(lvl) {
+        const stories = {
+            2: {t: "LACAK LOKASI", d: "Cek log pintu 'R.Server'. Filter menggunakan WHERE."},
+            3: {t: "IDENTIFIKASI", d: "ID 18 mencurigakan. Cari namanya di tabel siswa."},
+            4: {t: "PEMBEKUAN", d: "Update status siswa ID 18 menjadi 'Suspended'."},
+            5: {t: "ALIRAN DANA", d: "Cek tabel bank. Siapa penerima uang > 1 Juta?"},
+            6: {t: "BOS BESAR", d: "Urutkan transaksi bank berdasarkan jumlah terbesar (DESC)."},
+            7: {t: "PROFILING", d: "Dalang adalah ID 45. Cari datanya di tabel siswa."},
+            8: {t: "JARINGAN", d: "Cari teman sekelasnya (LIKE '%TKJ%')."},
+            9: {t: "INTENSITAS", d: "Hitung (COUNT) berapa kali Kevin (ID 45) akses pintu."},
+            10: {t: "SCAN VIRUS", d: "Cari file berekstensi .exe di file_server."},
+            11: {t: "HAPUS VIRUS", d: "Hapus file bertipe 'Virus' dari server."},
+            12: {t: "KERUGIAN", d: "Hitung total harga (SUM) barang 'Hilang'."},
+            13: {t: "LAPORAN", d: "Insert laporan polisi: Tersangka 'Kevin', Status 'Diproses'."},
+            14: {t: "JEJAK UNIK (DISTINCT)", d: "Tampilkan <code>lokasi</code> unik dari <code>log_pintu</code>."},
+            15: {t: "POLA SERANGAN (GROUP BY)", d: "Hitung jumlah akses per lokasi (GROUP BY)."},
+            16: {t: "TITIK LEMAH (HAVING)", d: "Lokasi mana yang diakses > 2 kali? (HAVING COUNT > 2)."},
+            17: {t: "DATA TERBESAR (MAX)", d: "Cek nominal transaksi paling besar di tabel bank."},
+            18: {t: "KONEKSI PERANGKAT (JOIN)", d: "Gabungkan tabel <code>siswa</code> dan <code>perangkat</code>. Tampilkan nama dan OS."},
+            19: {t: "TOP 3 (LIMIT)", d: "Tampilkan 3 siswa pertama berdasarkan ID (LIMIT 3)."},
+            20: {t: "LOCKDOWN", d: "Kunci akses Admin (ID 99). Update status jadi 'Banned'."},
+            // NEW 21-23
+            21: {t: "OS HACKER (SUBQUERY)", d: "Ada perangkat menggunakan 'Kali Linux'. Siapa pemiliknya? Gunakan: <code>SELECT nama FROM siswa WHERE id IN (SELECT id_siswa FROM perangkat WHERE os = 'Kali Linux')</code>."},
+            22: {t: "RATA-RATA SUAP (AVG)", d: "Pihak berwajib meminta data rata-rata uang suap. Hitung rata-rata (AVG) kolom <code>jumlah</code> di tabel <code>bank</code>."},
+            23: {t: "HILANGKAN JEJAK (DROP)", d: "Misi rahasia: Agar sekolah tidak tahu kita meretas balik sistem mereka, hapus tabel log. Gunakan perintah <code>DROP TABLE log_pintu</code>."}
+        };
+        return stories[lvl] || {t: "LANJUT", d: "Teruskan..."};
+    }
+
     function updateStory(lvl, title, desc) {
         document.getElementById('story-text').innerHTML = `
-            <div style="margin-bottom:5px"><span class="level-tag">LEVEL ${lvl}</span> <strong style="color:white;">${title}</strong></div>
-            <div>${desc}</div>
+            <div style="margin-bottom:5px"><span class="level-tag">LEVEL ${lvl}</span> <strong style="color:white;">${title}</strong></div><div>${desc}</div>
         `;
     }
 
     function finishGame() {
-        let finalTime = stopTimer();
-        let submitUrl = `${GFORM_BASE_URL}?usp=pp_url&${ENTRY_NAMA}=${encodeURIComponent(userData.nama)}&${ENTRY_KELAS}=${encodeURIComponent(userData.kelas)}&${ENTRY_WAKTU}=${encodeURIComponent(finalTime)}`;
+        clearInterval(timerInterval);
+        isGameActive = false; // Matikan anti-cheat agar tidak terdeteksi saat submit
+        let finalTime = document.getElementById('timer-display').innerText;
+        document.getElementById('input-section').style.display = 'none';
+
         document.getElementById('story-text').innerHTML = `
-            <div style="text-align:center; padding:10px;">
-                <h2 style="color:gold;">🏆 MISI SELESAI</h2>
-                <p>Agen: ${userData.nama} | Waktu: <strong>${finalTime}</strong></p>
-                <a href="${submitUrl}" target="_blank"><button style="background:gold; color:black; padding:10px 20px; font-weight:bold; border:none; cursor:pointer; margin-top:10px;">📤 KIRIM LAPORAN</button></a>
+            <div style="text-align:center; padding:20px;">
+                <h2 style="color:gold;">🏆 MISI SELESAI (23 LEVELS)</h2>
+                <div class="spinner"></div>
+                <p>Mengirim skor ke server...</p>
+                <button id="forceSubmitBtn" class="exec-btn" onclick="submitData('${finalTime}')" style="display:none; background:gold; color:black;">KIRIM MANUAL</button>
             </div>
         `;
-        document.getElementById('sqlInput').style.display = 'none';
+
+        submitData(finalTime);
+    }
+
+    function submitData(time) {
+        const formData = new FormData();
+        formData.append("nama", userData.nama);
+        formData.append("kelas", userData.kelas);
+        formData.append("waktu", time);
+
+        fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: formData, mode: "no-cors" })
+        .then(() => {
+            document.getElementById('story-text').innerHTML = `
+                <div style="text-align:center; padding:20px; border:2px solid gold;">
+                    <h1 style="color:gold;">✅ DATA TERKIRIM</h1>
+                    <p>Agen <strong>${userData.nama}</strong> berhasil menamatkan 23 Level.</p>
+                    <p>Waktu: ${time}</p>
+                    <p>Silakan lapor ke Guru.</p>
+                </div>
+            `;
+        })
+        .catch(e => {
+            document.getElementById('forceSubmitBtn').style.display = 'block';
+            alert("Gagal kirim otomatis. Klik tombol Kirim Manual.");
+        });
     }
 
     function renderFooter() {
         const tables = alasql("SHOW TABLES");
         const footer = document.getElementById('schema-footer');
-        footer.innerHTML = "<span class='footer-label'>SCHEMA ></span>";
+        footer.innerHTML = "<span style='color:var(--green); font-weight:bold; margin-right:5px;'>SCHEMA ></span>";
         tables.forEach(t => {
             const cols = alasql(`SHOW COLUMNS FROM ${t.tableid}`);
             const colNames = cols.map(c => c.columnid).join(", ");
-            footer.innerHTML += `<div class="schema-item" title="Info Tabel"><strong>${t.tableid.toUpperCase()}</strong><span>(${colNames})</span></div><div style="color:#333">|</div>`;
+            footer.innerHTML += `<div class="schema-item" title="Tabel"><strong>${t.tableid.toUpperCase()}</strong><span>(${colNames})</span></div><div style="color:#333">|</div>`;
         });
     }
 
     function renderTable(data, container) {
-        if (!data || data.length === 0) return container.innerHTML = "<em style='color:#555'>No Data</em>";
+        if (!data || data.length === 0) return container.innerHTML = "<em style='color:#555'>Data tidak ditemukan</em>";
         if (typeof data === 'number') return container.innerHTML = `<h2 style='color:#fff'>${data}</h2>`;
         let html = "<table><thead><tr>";
         for (let key in data[0]) html += `<th>${key}</th>`;
